@@ -61,12 +61,12 @@ class top_block(grc_wxgui.top_block_gui):
     self.rfgain = options.gain
 
     self.src = osmosdr.source(options.args)
-    
+
     # added by scateu @ 2014-1-9
     self.src.set_freq_corr(0, 0)
     self.src.set_dc_offset_mode(1, 0)
     self.src.set_iq_balance_mode(0, 0)
-    self.src.set_gain_mode(0, 0)
+    self.src.set_gain_mode(False, 0)
     self.src.set_gain(14, 0)
     self.src.set_if_gain(58, 0)
     self.src.set_bb_gain(20, 0)
@@ -77,12 +77,12 @@ class top_block(grc_wxgui.top_block_gui):
     self.src.set_sample_rate(int(options.sample_rate))
 
     if self.rfgain is None:
-        self.src.set_gain_mode(1)
+        self.src.set_gain_mode(True)
         self.iagc = 1
         self.rfgain = 0
     else:
         self.iagc = 0
-        self.src.set_gain_mode(0)
+        self.src.set_gain_mode(False)
         self.src.set_gain(self.rfgain)
 
     # may differ from the requested rate
@@ -109,7 +109,7 @@ class top_block(grc_wxgui.top_block_gui):
 
     self.connect(self.src, self.tuner, self.interpolator, self.receiver)
     self.connect((self.src, 0), (self.output, 0))
-    
+
     def set_ifreq(ifreq):
         self.ifreq = ifreq
         self._ifreq_text_box.set_value(self.ifreq)
@@ -127,7 +127,7 @@ class top_block(grc_wxgui.top_block_gui):
     def set_iagc(iagc):
         self.iagc = iagc
         self._agc_check_box.set_value(self.iagc)
-        self.src.set_gain_mode(self.iagc, 0)
+        self.src.set_gain_mode(True if self.iagc else False, 0)
         self.src.set_gain(0 if self.iagc == 1 else self.rfgain, 0)
 
     self._agc_check_box = forms.check_box(
